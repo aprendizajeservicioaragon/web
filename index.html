@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>ApS Aragón</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --cream:#f5f0e8;--dark:#1a1a1a;--muted:#666;
+  --c1:#3a9e8a;--c2:#4a8c3f;--c3:#d4921a;--c4:#7b5ea7;--c5:#3a7bbf;--c6:#d06830;--c7:#c04060;
+  --serif:'Playfair Display',Georgia,serif;--sans:'Inter',system-ui,sans-serif;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:#fff;color:var(--dark);overflow-x:hidden}
+
+/* ── NAV ── */
+#topnav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(26,26,26,.96);backdrop-filter:blur(10px);display:flex;align-items:center;padding:0 1.2rem;height:54px;gap:.15rem}
+.nav-brand{font-family:var(--serif);font-size:1rem;color:#fff;white-space:nowrap;margin-right:.8rem;text-decoration:none;flex-shrink:0}
+.nav-items{display:flex;gap:.1rem;flex-wrap:nowrap;overflow-x:auto;flex:1}
+.nav-btn{background:none;border:none;cursor:pointer;font-family:var(--sans);font-size:.68rem;font-weight:500;letter-spacing:.04em;text-transform:uppercase;padding:.4rem .6rem;border-radius:3px;color:rgba(255,255,255,.65);transition:all .2s;white-space:nowrap;flex-shrink:0}
+.nav-btn:hover,.nav-btn.active{color:#fff;background:rgba(255,255,255,.12)}
+.nav-btn[data-s="inicio"]{color:var(--c1)}
+.nav-btn[data-s="quienes"]{color:#6dc46a}
+.nav-btn[data-s="quees"]{color:#f0b840}
+.nav-btn[data-s="experiencias"]{color:#a88ad4}
+.nav-btn[data-s="recursos"]{color:#6aaae0}
+.nav-btn[data-s="encuentros"]{color:#e8904a}
+.nav-btn[data-s="contacto"]{color:#e07090}
+/* Auth button in nav */
+.nav-auth{margin-left:auto;flex-shrink:0;display:flex;align-items:center;gap:.5rem}
+.nav-auth-btn{background:none;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.55);font-family:var(--sans);font-size:.66rem;font-weight:500;letter-spacing:.05em;text-transform:uppercase;padding:.35rem .7rem;border-radius:3px;cursor:pointer;transition:all .2s;white-space:nowrap}
+.nav-auth-btn:hover{border-color:rgba(255,255,255,.5);color:#fff}
+.nav-auth-btn.logged{border-color:var(--c2);color:#6dc46a}
+.logged-badge{font-size:.62rem;color:rgba(255,255,255,.35);white-space:nowrap}
+
+/* ── HERO ── */
+#inicio{min-height:100vh;background:linear-gradient(160deg,#0d2818,#1a3a2a,#0d1f3a);position:relative;display:flex;flex-direction:column;justify-content:flex-end;padding-top:54px}
+.hero-bg{position:absolute;inset:0;background:url('https://images.unsplash.com/photo-1529390079861-591de354faf5?w=1600&auto=format&fit=crop') center/cover;opacity:.3}
+.hero-ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(10,24,16,.97) 25%,rgba(10,24,16,.4) 100%)}
+.hero-inner{position:relative;z-index:2;max-width:860px;padding:0 2.5rem 6rem}
+.hero-tag{display:inline-block;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--c1);border:1px solid var(--c1);padding:.3rem .8rem;border-radius:2px;margin-bottom:1.5rem}
+.hero-inner h1{font-family:var(--serif);font-size:clamp(2.5rem,5.5vw,5rem);color:#fff;line-height:1.1;margin-bottom:1.2rem}
+.hero-inner h1 em{font-style:italic;color:#7de4c8}
+.hero-sub{color:rgba(255,255,255,.65);font-size:1.05rem;max-width:520px;line-height:1.7;margin-bottom:2.5rem}
+.quick-links{display:flex;flex-wrap:wrap;gap:.75rem}
+.ql{display:inline-flex;align-items:center;gap:.5rem;padding:.6rem 1.1rem;border-radius:3px;font-size:.8rem;font-weight:500;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;transition:all .25s;border:none;font-family:var(--sans)}
+.ql-primary{background:var(--c1);color:#fff} .ql-primary:hover{filter:brightness(1.15)}
+.ql-ghost{background:rgba(255,255,255,.1);color:rgba(255,255,255,.8);border:1px solid rgba(255,255,255,.25)} .ql-ghost:hover{background:rgba(255,255,255,.2)}
+.hero-cards{position:relative;z-index:2;display:grid;grid-template-columns:1fr 1fr;gap:1px;background:rgba(255,255,255,.08);border-top:1px solid rgba(255,255,255,.08)}
+.hcard{padding:1.5rem 2rem;background:rgba(10,24,16,.7);position:relative}
+.hcard-label{font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:.5rem}
+.hcard-title{font-family:var(--serif);font-size:1.05rem;color:#fff;margin-bottom:.3rem}
+.hcard-sub{font-size:.8rem;color:rgba(255,255,255,.5)}
+
+/* ── UPLOAD BUTTON (members only) ── */
+.upload-btn{position:absolute;top:.9rem;right:.9rem;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.5);font-size:.65rem;padding:.25rem .55rem;border-radius:2px;cursor:pointer;letter-spacing:.06em;text-transform:uppercase;font-family:var(--sans);transition:all .2s;display:none}
+.upload-btn:hover{background:rgba(255,255,255,.18);color:#fff}
+.members-only{display:none}
+body.authenticated .upload-btn{display:block}
+body.authenticated .members-only{display:flex}
+body.authenticated .add-exp-btn{display:inline-flex}
+.add-exp-btn{display:none;align-items:center;gap:.4rem;margin-top:1rem;padding:.5rem 1rem;background:transparent;border:1px dashed var(--c4);color:var(--c4);border-radius:3px;font-size:.78rem;cursor:pointer;font-family:var(--sans);transition:all .2s}
+.add-exp-btn:hover{background:var(--c4);color:#fff}
+.add-exp-btn.green{border-color:var(--c2);color:var(--c2)} .add-exp-btn.green:hover{background:var(--c2);color:#fff}
+.add-exp-btn.blue{border-color:var(--c5);color:var(--c5)} .add-exp-btn.blue:hover{background:var(--c5);color:#fff}
+.add-exp-btn.orange{border-color:var(--c6);color:var(--c6)} .add-exp-btn.orange:hover{background:var(--c6);color:#fff}
+
+/* ── GENERIC SECTION ── */
+.section{padding:5rem 2rem;scroll-margin-top:54px}
+.section-inner{max-width:900px;margin:0 auto}
+.s-label{font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;font-weight:600;margin-bottom:.6rem}
+.s-title{font-family:var(--serif);font-size:clamp(1.8rem,3.5vw,2.8rem);line-height:1.2;margin-bottom:2rem}
+.s-body{font-size:.97rem;line-height:1.85;color:#444;max-width:650px}
+.s-body p+p{margin-top:1rem}
+.divider{width:50px;height:2px;margin:1.8rem 0}
+#quienes .s-label{color:var(--c2)} #quienes .divider{background:var(--c2)}
+#quees .s-label{color:var(--c3)} #quees .divider{background:var(--c3)}
+#experiencias .s-label{color:var(--c4)} #experiencias .divider{background:var(--c4)}
+#recursos .s-label{color:var(--c5)} #recursos .divider{background:var(--c5)}
+#encuentros .s-label{color:var(--c6)} #encuentros .divider{background:var(--c6)}
+#contacto .s-label{color:var(--c7)} #contacto .divider{background:var(--c7)}
+
+/* ── QUIÉNES SOMOS ── */
+#quienes{background:#f8f5f0}
+.team-section{margin-top:3rem}
+.team-photo-wrap{position:relative;max-width:680px;border-radius:6px;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.15);background:#e0e0e0}
+.team-photo-wrap img{width:100%;display:block;vertical-align:bottom}
+/* Face hotspot zones — adjusted for 4 people side by side */
+.face-zone{position:absolute;width:16%;padding-top:20%;top:4%;border-radius:50%;cursor:pointer}
+.fz1{left:2%} .fz2{left:26%} .fz3{left:51%} .fz4{left:74%}
+.face-tooltip{
+  display:none;position:absolute;bottom:calc(100% + 10px);left:50%;transform:translateX(-50%);
+  background:rgba(26,26,26,.95);color:#fff;padding:.7rem 1.1rem;border-radius:5px;
+  white-space:nowrap;font-size:.8rem;line-height:1.5;z-index:10;pointer-events:none;
+  border-top:3px solid var(--c2);box-shadow:0 4px 16px rgba(0,0,0,.3);
+}
+.face-tooltip strong{display:block;font-size:.88rem;margin-bottom:.15rem}
+.face-tooltip span{color:rgba(255,255,255,.6);font-size:.75rem}
+.face-tooltip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:rgba(26,26,26,.95)}
+.face-zone:hover .face-tooltip{display:block}
+.face-zone:hover{outline:3px solid var(--c2);outline-offset:3px;border-radius:50%}
+
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:2.5rem}
+.info-card{padding:1.5rem;border-left:3px solid var(--c2);background:#fff}
+.info-card h3{font-family:var(--serif);font-size:1.05rem;margin-bottom:.6rem}
+.info-card p{font-size:.87rem;color:#555;line-height:1.7}
+
+/* ── QUÉ ES EL ApS ── */
+#quees{background:#fff}
+.aps-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.5rem;margin-top:2rem}
+.aps-card{padding:1.5rem;border-top:3px solid var(--c3);background:#fffdf7}
+.aps-icon{font-size:1.6rem;margin-bottom:.7rem}
+.aps-card h3{font-family:var(--serif);font-size:1rem;margin-bottom:.5rem}
+.aps-card p{font-size:.83rem;color:#666;line-height:1.65}
+.formula-box{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin:2.5rem 0;padding:2rem;background:#fffbf0;border:1px solid #e8d89a}
+.f-item{font-family:var(--serif);font-size:1.05rem;padding:.5rem 1rem;background:#fff;border-radius:3px;border:1px solid #e0d4a0}
+.f-plus{font-size:1.5rem;color:var(--c3);font-weight:700}
+.f-eq{font-size:1.2rem;color:#aaa}
+.f-result{font-family:var(--serif);font-style:italic;font-size:1.1rem;color:var(--c3)}
+
+/* ── EXPERIENCIAS ── */
+#experiencias{background:#f3f0f8}
+.exp-tabs{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:2rem}
+.exp-tab{background:none;border:1px solid rgba(123,94,167,.3);color:var(--c4);padding:.45rem .9rem;border-radius:20px;font-size:.78rem;cursor:pointer;font-family:var(--sans);transition:all .2s}
+.exp-tab.active,.exp-tab:hover{background:var(--c4);color:#fff;border-color:var(--c4)}
+.exp-panel{display:none} .exp-panel.active{display:block}
+.exp-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:1.2rem;min-height:80px}
+.exp-card{background:#fff;border-radius:4px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.07);transition:transform .2s}
+.exp-card:hover{transform:translateY(-3px)}
+.exp-card-img{height:130px;background:linear-gradient(135deg,#7b5ea7,#4a3570) center/cover;display:flex;align-items:center;justify-content:center;font-size:2rem;color:rgba(255,255,255,.4)}
+.exp-card-body{padding:1rem}
+.exp-card-body h4{font-family:var(--serif);font-size:.95rem;margin-bottom:.35rem}
+.exp-card-body p{font-size:.78rem;color:#777;line-height:1.5}
+.exp-card-tag{display:inline-block;font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;background:#f0ebfa;color:var(--c4);padding:.2rem .5rem;border-radius:2px;margin-bottom:.5rem}
+
+/* ── RECURSOS ── */
+#recursos{background:#fff}
+.res-sections{display:grid;gap:2.5rem}
+.res-block{border-left:3px solid var(--c5);padding-left:1.5rem}
+.res-block h3{font-family:var(--serif);font-size:1.1rem;margin-bottom:1rem;color:var(--dark)}
+.res-list{list-style:none;display:flex;flex-direction:column;gap:.6rem}
+.res-list li{display:flex;align-items:flex-start;gap:.7rem;font-size:.88rem;color:#444;padding:.5rem;background:#f8f8f8;border-radius:3px}
+.res-list li::before{content:'↗';color:var(--c5);font-size:.9rem;margin-top:.05rem;flex-shrink:0}
+.res-list a{color:var(--c5);text-decoration:none} .res-list a:hover{text-decoration:underline}
+.comenzar-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:1rem}
+.comenzar-card{background:#f0f7ff;border-radius:4px;overflow:hidden;border:1px solid #d0e4f5;transition:all .2s;cursor:pointer}
+.comenzar-card:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(58,123,191,.15)}
+.comenzar-card-img{height:110px;background:linear-gradient(135deg,#3a7bbf,#1a4a8f) center/cover;display:flex;align-items:center;justify-content:center;font-size:2rem;color:rgba(255,255,255,.5)}
+.comenzar-card-body{padding:.9rem}
+.comenzar-card-body h4{font-size:.88rem;font-weight:600;margin-bottom:.25rem;color:var(--dark)}
+.comenzar-card-body p{font-size:.75rem;color:#777;line-height:1.4}
+.profundizar-box{margin-top:1rem;display:flex;align-items:center;gap:1.5rem;padding:1.5rem;background:linear-gradient(135deg,#3a7bbf,#1a4a8f);border-radius:4px;color:#fff;text-decoration:none;transition:filter .2s}
+.profundizar-box:hover{filter:brightness(1.1)}
+.pb-icon{font-size:2.5rem;opacity:.7}
+.profundizar-box h4{font-family:var(--serif);font-size:1.15rem;margin-bottom:.3rem}
+.profundizar-box p{font-size:.82rem;opacity:.75}
+.pb-arrow{margin-left:auto;font-size:1.5rem;opacity:.6}
+
+/* ── ENCUENTROS ── */
+#encuentros{background:#fdf7f2}
+.enc-list{display:flex;flex-direction:column;gap:1px;background:rgba(0,0,0,.06);margin-top:1.5rem}
+.enc-item{background:#fff;padding:1.2rem 1.5rem;display:flex;gap:1.5rem;align-items:flex-start}
+.enc-date{min-width:50px;text-align:center;background:var(--c6);color:#fff;border-radius:3px;padding:.4rem .3rem;flex-shrink:0}
+.enc-date .day{font-family:var(--serif);font-size:1.5rem;line-height:1;font-weight:700}
+.enc-date .mon{font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;margin-top:.15rem}
+.enc-body h4{font-size:.95rem;font-weight:600;margin-bottom:.25rem}
+.enc-body p{font-size:.8rem;color:#666}
+.enc-tag{display:inline-block;font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;padding:.15rem .45rem;border-radius:2px;margin-right:.4rem}
+.enc-tag.jornada{background:#fde8d8;color:var(--c6)}
+.enc-tag.noticia{background:#f0e8f5;color:var(--c4)}
+.enc-tag.actividad{background:#e0f0e8;color:var(--c2)}
+
+/* ── CONTACTO ── */
+#contacto{background:#1a1a1a;color:#fff}
+#contacto .s-title{color:#fff}
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:start}
+.contact-info{display:flex;flex-direction:column;gap:1.2rem}
+.ci-item{display:flex;gap:1rem;align-items:flex-start}
+.ci-icon{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
+.ci-icon.email{background:rgba(192,64,96,.25);color:#e07090}
+.ci-icon.web{background:rgba(58,123,191,.25);color:#6aaae0}
+.ci-icon.redes{background:rgba(123,94,167,.25);color:#a88ad4}
+.ci-text h4{font-size:.88rem;font-weight:600;margin-bottom:.2rem}
+.ci-text p,.ci-text a{font-size:.82rem;color:rgba(255,255,255,.5);text-decoration:none}
+.ci-text a:hover{color:var(--c7)}
+.contact-form{display:flex;flex-direction:column;gap:.8rem}
+.cf-input{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#fff;padding:.7rem 1rem;border-radius:3px;font-family:var(--sans);font-size:.88rem;outline:none;transition:border-color .2s}
+.cf-input:focus{border-color:rgba(192,64,96,.5)}
+.cf-input::placeholder{color:rgba(255,255,255,.25)}
+textarea.cf-input{min-height:100px;resize:vertical}
+.cf-btn{background:var(--c7);color:#fff;border:none;padding:.75rem 1.5rem;border-radius:3px;font-family:var(--sans);font-size:.85rem;font-weight:600;cursor:pointer;letter-spacing:.04em;transition:filter .2s}
+.cf-btn:hover{filter:brightness(1.15)}
+
+/* ── FOOTER ── */
+footer{background:#111;color:rgba(255,255,255,.35);padding:2rem 2.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;font-size:.75rem}
+footer a{color:rgba(255,255,255,.35);text-decoration:none} footer a:hover{color:rgba(255,255,255,.7)}
+.footer-logo{font-family:var(--serif);font-size:.95rem;color:rgba(255,255,255,.6)}
+
+/* ── EMPTY STATE ── */
+.empty-state{text-align:center;padding:2rem 1rem;color:#bbb;font-size:.82rem;border:1px dashed #e0e0e0;border-radius:4px}
+.empty-state .es-icon{font-size:1.8rem;display:block;margin-bottom:.4rem;opacity:.4}
+
+/* ══ MODALS ══ */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:999;align-items:center;justify-content:center}
+.modal-bg.open{display:flex}
+.modal{background:#fff;border-radius:8px;width:min(460px,94vw);overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.4)}
+.modal-head{padding:1.1rem 1.4rem;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #eee}
+.modal-head h3{font-family:var(--serif);font-size:1.05rem}
+.modal-close{background:none;border:none;font-size:1.4rem;cursor:pointer;color:#aaa;line-height:1;padding:0 .2rem}
+.modal-close:hover{color:#333}
+.modal-body{padding:1.4rem;display:flex;flex-direction:column;gap:.9rem}
+.m-field{display:flex;flex-direction:column;gap:.35rem}
+.m-field label{font-size:.7rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#888}
+.m-field input,.m-field textarea,.m-field select{width:100%;border:1px solid #ddd;border-radius:3px;padding:.6rem .8rem;font-family:var(--sans);font-size:.88rem;outline:none;transition:border-color .2s;color:#333}
+.m-field input:focus,.m-field textarea:focus{border-color:var(--c5)}
+.m-field textarea{min-height:70px;resize:vertical}
+.m-submit{background:var(--c5);color:#fff;border:none;padding:.72rem 1.4rem;border-radius:3px;font-family:var(--sans);font-size:.85rem;font-weight:600;cursor:pointer;width:100%;letter-spacing:.04em;transition:filter .2s}
+.m-submit:hover{filter:brightness(1.1)}
+.m-note{font-size:.72rem;color:#bbb;text-align:center;line-height:1.4}
+.m-err{font-size:.78rem;color:#c04060;text-align:center;display:none}
+
+/* ── LOGIN MODAL specific ── */
+#login-modal .modal-head{background:var(--dark)}
+#login-modal .modal-head h3{color:#fff}
+#login-modal .modal-close{color:rgba(255,255,255,.5)}
+#login-modal .modal-close:hover{color:#fff}
+.login-icon{text-align:center;font-size:2.5rem;margin-bottom:.2rem}
+.login-subtitle{text-align:center;font-size:.82rem;color:#888;margin-top:-.3rem}
+#login-modal .m-submit{background:var(--c2)}
+#login-modal .m-field input{padding-left:2.2rem}
+.input-wrap{position:relative}
+.input-wrap .inp-icon{position:absolute;left:.7rem;top:50%;transform:translateY(-50%);font-size:.9rem;pointer-events:none}
+#show-pass-btn{position:absolute;right:.7rem;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:.8rem;color:#aaa;padding:0}
+
+@media(max-width:680px){
+  #topnav{padding:0 .6rem}
+  .nav-items{gap:.05rem}
+  .nav-btn{font-size:.6rem;padding:.3rem .45rem}
+  .hero-inner{padding:0 1rem 4rem}
+  .hero-cards{grid-template-columns:1fr}
+  .info-grid,.contact-grid{grid-template-columns:1fr}
+  .logged-badge{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ NAV ══ -->
+<nav id="topnav">
+  <a href="#inicio" class="nav-brand">ApS Aragón</a>
+  <div class="nav-items">
+    <button class="nav-btn" data-s="inicio" onclick="goTo('inicio')">Inicio</button>
+    <button class="nav-btn" data-s="quienes" onclick="goTo('quienes')">Quiénes somos</button>
+    <button class="nav-btn" data-s="quees" onclick="goTo('quees')">Qué es el ApS</button>
+    <button class="nav-btn" data-s="experiencias" onclick="goTo('experiencias')">Experiencias</button>
+    <button class="nav-btn" data-s="recursos" onclick="goTo('recursos')">Recursos</button>
+    <button class="nav-btn" data-s="encuentros" onclick="goTo('encuentros')">Encuentros</button>
+    <button class="nav-btn" data-s="contacto" onclick="goTo('contacto')">Contacto</button>
+  </div>
+  <div class="nav-auth">
+    <span class="logged-badge" id="logged-badge" style="display:none"></span>
+    <button class="nav-auth-btn" id="auth-toggle-btn" onclick="toggleAuth()">🔒 Miembros</button>
+  </div>
+</nav>
+
+<!-- ══ INICIO ══ -->
+<section id="inicio" style="scroll-margin-top:0">
+  <div class="hero-bg"></div><div class="hero-ov"></div>
+  <div class="hero-inner">
+    <span class="hero-tag">Grupo Territorial · RedApS</span>
+    <h1>Aprender haciendo<br>un <em>servicio</em><br>a la comunidad</h1>
+    <p class="hero-sub">El Grupo Impulsor de ApS en Aragón une centros educativos, universidades y entidades sociales para transformar el aprendizaje en compromiso real.</p>
+    <div class="quick-links">
+      <button class="ql ql-primary" onclick="goTo('quees')">¿Qué es el ApS?</button>
+      <button class="ql ql-ghost" onclick="goTo('experiencias')">Ver experiencias</button>
+      <button class="ql ql-ghost" onclick="goTo('quienes')">El grupo impulsor</button>
+      <button class="ql ql-ghost" onclick="goTo('contacto')">Contactar</button>
+    </div>
+  </div>
+  <div class="hero-cards">
+    <div class="hcard">
+      <div class="hcard-label">⭐ Experiencia destacada</div>
+      <div class="hcard-title" id="dest-title">Próximamente…</div>
+      <div class="hcard-sub" id="dest-sub"></div>
+      <button class="upload-btn" onclick="openModal('destacada')">✏ Editar</button>
+    </div>
+    <div class="hcard">
+      <div class="hcard-label">📅 Próximo encuentro o noticia</div>
+      <div class="hcard-title" id="enc-title">Próximamente…</div>
+      <div class="hcard-sub" id="enc-sub"></div>
+      <button class="upload-btn" onclick="openModal('encuentro')">✏ Editar</button>
+    </div>
+  </div>
+</section>
+
+<!-- ══ QUIÉNES SOMOS ══ -->
+<section class="section" id="quienes">
+  <div class="section-inner">
+    <p class="s-label">Quiénes somos</p>
+    <h2 class="s-title">El Grupo Impulsor<br>de ApS en Aragón</h2>
+    <div class="divider"></div>
+    <div class="s-body">
+      <p>Somos un grupo de personas provenientes de centros educativos de todos los niveles, de la universidad, de entidades sociales y de instituciones públicas que creemos en el potencial del Aprendizaje-Servicio para transformar la educación y la comunidad.</p>
+      <p>Formamos parte de la Red Española de Aprendizaje-Servicio (RedApS) como grupo territorial de Aragón, impulsando la metodología en todo el territorio aragonés.</p>
+    </div>
+    <div class="team-section">
+      <h3 style="font-family:var(--serif);font-size:1.2rem;margin-bottom:.5rem">Equipo impulsor</h3>
+      <p style="font-size:.82rem;color:#999;margin-bottom:1rem;font-style:italic">Pasa el ratón por encima de cada persona para ver su información</p>
+      <div class="team-photo-wrap" id="team-wrap">
+        <!-- ▶ FOTO REAL del equipo — sustituye este src con la URL de tu imagen alojada -->
+        <img id="team-img"
+          src="https://github.com/antoniolopezpolo/aprendizajeservicioaragon/blob/main/grupo_1.jpeg#:~:text=grupo_1.jpeg"
+          alt="Equipo impulsor ApS Aragón" style="width:100%;display:block">
+        <!-- Zonas de cara — ajusta top/left/width/padding-top según la foto real -->
+        <div class="face-zone fz1">
+          <div class="face-tooltip"><strong id="fn1">Persona 1</strong><span id="fp1">Centro educativo</span></div>
+        </div>
+        <div class="face-zone fz2">
+          <div class="face-tooltip"><strong id="fn2">Persona 2</strong><span id="fp2">Universidad de Zaragoza</span></div>
+        </div>
+        <div class="face-zone fz3">
+          <div class="face-tooltip"><strong id="fn3">Persona 3</strong><span id="fp3">Instituto de Secundaria</span></div>
+        </div>
+        <div class="face-zone fz4">
+          <div class="face-tooltip"><strong id="fn4">Persona 4</strong><span id="fp4">Gobierno de Aragón</span></div>
+        </div>
+      </div>
+      <!-- Members-only: edit team names -->
+      <button class="add-exp-btn green members-only" style="margin-top:.8rem" onclick="openModal('teamnames')">✏ Editar nombres del equipo</button>
+    </div>
+    <div class="info-grid" style="margin-top:2.5rem">
+      <div class="info-card"><h3>Qué hacemos</h3><p>Promovemos, acompañamos y difundimos proyectos ApS en Aragón. Organizamos formaciones, jornadas y encuentros entre centros y entidades.</p></div>
+      <div class="info-card"><h3>Cómo participar</h3><p>El grupo está abierto a cualquier persona o entidad interesada. Contáctanos para más información sobre cómo sumarte o iniciar un proyecto ApS.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ QUÉ ES EL ApS ══ -->
+<section class="section" id="quees">
+  <div class="section-inner">
+    <p class="s-label">Qué es el ApS</p>
+    <h2 class="s-title">Una metodología<br>para aprender siendo útiles</h2>
+    <div class="divider"></div>
+    <div class="formula-box">
+      <div class="f-item">📚 Aprendizaje curricular</div>
+      <span class="f-plus">+</span>
+      <div class="f-item">🤝 Servicio a la comunidad</div>
+      <span class="f-eq">=</span>
+      <span class="f-result">Ciudadanía activa y aprendizaje significativo</span>
+    </div>
+    <div class="aps-grid">
+      <div class="aps-card"><div class="aps-icon">💡</div><h3>De manera sencilla</h3><p>Los y las jóvenes aprenden contenidos curriculares resolviendo necesidades reales de su comunidad.</p></div>
+      <div class="aps-card"><div class="aps-icon">🌱</div><h3>Principios básicos</h3><p>Necesidad real, protagonismo joven, reflexión continua, calidad de servicio y aprendizaje a la vez.</p></div>
+      <div class="aps-card"><div class="aps-icon">🌍</div><h3>Ámbitos de actuación</h3><p>Medio ambiente, inclusión, salud, interculturalidad, cooperación, patrimonio y mucho más.</p></div>
+      <div class="aps-card"><div class="aps-icon">🔑</div><h3>Claves para un buen proyecto</h3><p>Diagnóstico de la necesidad, planificación compartida, ejecución real, reflexión y celebración.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ EXPERIENCIAS ══ -->
+<section class="section" id="experiencias" style="background:#f3f0f8">
+  <div class="section-inner">
+    <p class="s-label">Experiencias</p>
+    <h2 class="s-title">Proyectos ApS<br>en Aragón</h2>
+    <div class="divider"></div>
+    <div class="exp-tabs">
+      <button class="exp-tab active" onclick="showTab('infantil',this)">Infantil y Primaria</button>
+      <button class="exp-tab" onclick="showTab('secundaria',this)">Secundaria / Bachillerato</button>
+      <button class="exp-tab" onclick="showTab('fp',this)">Formación Profesional</button>
+      <button class="exp-tab" onclick="showTab('universidad',this)">Universidad</button>
+      <button class="exp-tab" onclick="showTab('entidades',this)">Entidades sociales</button>
+    </div>
+    <div id="panel-infantil" class="exp-panel active">
+      <div class="exp-cards" id="cards-infantil"><div class="empty-state"><span class="es-icon">📂</span>Aún no hay experiencias publicadas.</div></div>
+      <button class="add-exp-btn" onclick="openModal('exp','infantil')">＋ Añadir experiencia</button>
+    </div>
+    <div id="panel-secundaria" class="exp-panel">
+      <div class="exp-cards" id="cards-secundaria"><div class="empty-state"><span class="es-icon">📂</span>Aún no hay experiencias publicadas.</div></div>
+      <button class="add-exp-btn" onclick="openModal('exp','secundaria')">＋ Añadir experiencia</button>
+    </div>
+    <div id="panel-fp" class="exp-panel">
+      <div class="exp-cards" id="cards-fp"><div class="empty-state"><span class="es-icon">📂</span>Aún no hay experiencias publicadas.</div></div>
+      <button class="add-exp-btn" onclick="openModal('exp','fp')">＋ Añadir experiencia</button>
+    </div>
+    <div id="panel-universidad" class="exp-panel">
+      <div class="exp-cards" id="cards-universidad"><div class="empty-state"><span class="es-icon">📂</span>Aún no hay experiencias publicadas.</div></div>
+      <button class="add-exp-btn" onclick="openModal('exp','universidad')">＋ Añadir experiencia</button>
+    </div>
+    <div id="panel-entidades" class="exp-panel">
+      <div class="exp-cards" id="cards-entidades"><div class="empty-state"><span class="es-icon">📂</span>Aún no hay experiencias publicadas.</div></div>
+      <button class="add-exp-btn" onclick="openModal('exp','entidades')">＋ Añadir experiencia</button>
+    </div>
+  </div>
+</section>
+
+<!-- ══ RECURSOS ══ -->
+<section class="section" id="recursos">
+  <div class="section-inner">
+    <p class="s-label">Recursos</p>
+    <h2 class="s-title">Materiales para el ApS</h2>
+    <div class="divider"></div>
+    <div class="res-sections">
+      <div class="res-block" style="border-color:var(--c5)">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;margin-bottom:1rem">
+          <h3>🚀 Comenzar en el ApS</h3>
+          <button class="add-exp-btn blue members-only" style="margin-top:0" onclick="openModal('comenzar')">＋ Añadir recurso</button>
+        </div>
+        <div class="comenzar-grid" id="comenzar-grid">
+          <div class="empty-state" style="grid-column:1/-1"><span class="es-icon">📄</span>Añade documentos y guías para empezar</div>
+        </div>
+      </div>
+      <div class="res-block" style="border-color:#1a4a8f">
+        <h3>📚 Profundizar en el ApS</h3>
+        <a href="https://www.aprendizajeservicio.net" target="_blank" class="profundizar-box">
+          <span class="pb-icon">🌐</span>
+          <div><h4>Red Española de Aprendizaje-Servicio</h4><p>Accede a la biblioteca completa de recursos, publicaciones, investigaciones y experiencias de toda España en la RedApS.</p></div>
+          <span class="pb-arrow">→</span>
+        </a>
+      </div>
+      <div class="res-block"><h3>📋 Materiales y guías</h3>
+        <ul class="res-list">
+          <li>Guía para iniciar un proyecto ApS en tu centro (RedApS)</li>
+          <li>Rúbricas de evaluación de proyectos ApS</li>
+          <li><a href="https://www.aprendizajeservicio.net" target="_blank">Banco de recursos RedApS</a></li>
+        </ul>
+      </div>
+      <div class="res-block"><h3>📖 Bibliografía</h3>
+        <ul class="res-list">
+          <li>Puig, J.M. et al. (2007). <em>Aprendizaje servicio: educar para la ciudadanía.</em> Octaedro.</li>
+          <li>Batlle, R. (2013). <em>El aprendizaje-servicio en España.</em> PPC Editorial.</li>
+        </ul>
+      </div>
+      <div class="res-block"><h3>▶ Vídeos y enlaces</h3>
+        <ul class="res-list">
+          <li><a href="https://www.aprendizajeservicio.net" target="_blank">Canal de vídeos RedApS (YouTube)</a></li>
+          <li>Conferencia Roser Batlle: «¿Qué es el ApS?»</li>
+        </ul>
+      </div>
+      <div class="res-block"><h3>⬇ Documentos descargables</h3>
+        <ul class="res-list">
+          <li>Mapa de necesidades comunitarias de Aragón (PDF)</li>
+          <li>Plantilla de proyecto ApS para centros educativos (DOCX)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ ENCUENTROS ══ -->
+<section class="section" id="encuentros" style="background:#fdf7f2">
+  <div class="section-inner">
+    <p class="s-label">Encuentros</p>
+    <h2 class="s-title">Próximas actividades<br>y noticias</h2>
+    <div class="divider"></div>
+    <div id="enc-list"><div class="empty-state"><span class="es-icon">📅</span>Próximamente se publicarán actividades y noticias.</div></div>
+    <button class="add-exp-btn orange members-only" style="display:none;margin-top:1rem" id="add-enc-btn" onclick="openModal('enclist')">＋ Añadir encuentro / noticia</button>
+  </div>
+</section>
+
+<!-- ══ CONTACTO ══ -->
+<section class="section" id="contacto" style="background:#1a1a1a">
+  <div class="section-inner">
+    <p class="s-label">Contacto</p>
+    <h2 class="s-title">Hablemos</h2>
+    <div class="divider" style="background:var(--c7)"></div>
+    <div class="contact-grid">
+      <div class="contact-info">
+        <div class="ci-item"><div class="ci-icon email">✉</div><div class="ci-text"><h4>Correo electrónico</h4><a href="mailto:aps.aragon@ejemplo.es">aps.aragon@ejemplo.es</a></div></div>
+        <div class="ci-item"><div class="ci-icon web">🌐</div><div class="ci-text"><h4>Red Española de ApS</h4><a href="https://www.aprendizajeservicio.net" target="_blank">aprendizajeservicio.net</a></div></div>
+        <div class="ci-item"><div class="ci-icon redes">📱</div><div class="ci-text"><h4>Redes sociales</h4><p>@ApSAragon en Twitter / X<br>ApS Aragón en Facebook</p></div></div>
+      </div>
+      <form class="contact-form" onsubmit="handleContact(event)">
+        <input class="cf-input" type="text" placeholder="Tu nombre">
+        <input class="cf-input" type="email" placeholder="Tu correo electrónico">
+        <input class="cf-input" type="text" placeholder="Asunto">
+        <textarea class="cf-input" placeholder="Mensaje…"></textarea>
+        <button class="cf-btn" type="submit">Enviar mensaje →</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span class="footer-logo">ApS Aragón</span>
+  <span>Grupo territorial de la <a href="https://www.aprendizajeservicio.net" target="_blank">Red Española de Aprendizaje-Servicio</a></span>
+  <span>© 2025 ApS Aragón</span>
+</footer>
+
+<!-- ══ LOGIN MODAL ══ -->
+<div class="modal-bg" id="login-modal" onclick="closeBg(event,'login-modal')">
+  <div class="modal">
+    <div class="modal-head" style="background:var(--dark)">
+      <h3 style="color:#fff;font-family:var(--serif)">Acceso · Equipo Impulsor</h3>
+      <button class="modal-close" style="color:rgba(255,255,255,.5)" onclick="closeModal('login-modal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="login-icon">🌿</div>
+      <p class="login-subtitle">Usuarios</p>
+      <div class="m-field">
+        <label>Usuario</label>
+        <div class="input-wrap">
+          <span class="inp-icon">👤</span>
+          <input id="login-user" type="text" placeholder="Nombre de usuario" autocomplete="username" onkeydown="if(event.key==='Enter')doLogin()">
+        </div>
+      </div>
+      <div class="m-field">
+        <label>Contraseña</label>
+        <div class="input-wrap">
+          <span class="inp-icon">🔑</span>
+          <input id="login-pass" type="password" placeholder="Contraseña" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+          <button id="show-pass-btn" type="button" onclick="togglePass()" title="Mostrar/ocultar">👁</button>
+        </div>
+      </div>
+      <p class="m-err" id="login-err">Usuario o contraseña incorrectos</p>
+      <button class="m-submit" style="background:var(--c2)" onclick="doLogin()">Entrar →</button>
+      <p class="m-note">Si no recuerdas tus credenciales, contacta con el coordinador del grupo.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CONTENT MODAL ══ -->
+<div class="modal-bg" id="content-modal" onclick="closeBg(event,'content-modal')">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="modal-title">Publicar</h3>
+      <button class="modal-close" onclick="closeModal('content-modal')">×</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+// ── MEMBERS (user/password pairs) ──
+// Cambia o amplía estas credenciales según vuestros miembros
+const MEMBERS=[
+  {user:'equipo',  pass:'aps2025',   name:'Equipo ApS'},
+  {user:'miembro1',pass:'aragón1',   name:'Miembro 1'},
+  {user:'miembro2',pass:'aragón2',   name:'Miembro 2'},
+];
+let currentUser=null;
+
+// ── NAV SCROLL ──
+function goTo(id){document.getElementById(id).scrollIntoView({behavior:'smooth'})}
+const io=new IntersectionObserver(es=>{
+  es.forEach(e=>{if(e.isIntersecting){
+    document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+    const b=document.querySelector(`.nav-btn[data-s="${e.target.id}"]`);
+    if(b)b.classList.add('active');
+  }});
+},{threshold:.2,rootMargin:'-54px 0px 0px 0px'});
+['inicio','quienes','quees','experiencias','recursos','encuentros','contacto'].forEach(s=>{
+  const el=document.getElementById(s);if(el)io.observe(el);
+});
+
+// ── AUTH ──
+function toggleAuth(){
+  if(currentUser){doLogout();}
+  else{document.getElementById('login-modal').classList.add('open');setTimeout(()=>document.getElementById('login-user').focus(),100);}
+}
+function doLogin(){
+  const u=document.getElementById('login-user').value.trim();
+  const p=document.getElementById('login-pass').value;
+  const m=MEMBERS.find(x=>x.user===u&&x.pass===p);
+  if(!m){document.getElementById('login-err').style.display='block';document.getElementById('login-pass').value='';return;}
+  currentUser=m;
+  closeModal('login-modal');
+  document.body.classList.add('authenticated');
+  document.getElementById('auth-toggle-btn').textContent='🔓 Salir';
+  document.getElementById('auth-toggle-btn').classList.add('logged');
+  document.getElementById('logged-badge').textContent='👋 '+m.name;
+  document.getElementById('logged-badge').style.display='inline';
+  document.getElementById('add-enc-btn').style.display='inline-flex';
+  showToast('✅ Bienvenido/a, '+m.name);
+}
+function doLogout(){
+  currentUser=null;
+  document.body.classList.remove('authenticated');
+  document.getElementById('auth-toggle-btn').textContent='🔒 Miembros';
+  document.getElementById('auth-toggle-btn').classList.remove('logged');
+  document.getElementById('logged-badge').style.display='none';
+  document.getElementById('add-enc-btn').style.display='none';
+  showToast('👋 Sesión cerrada');
+}
+function togglePass(){
+  const i=document.getElementById('login-pass');
+  i.type=i.type==='password'?'text':'password';
+}
+
+// ── MODALS ──
+let modalCtx={};
+function openModal(type,sub){
+  if(!currentUser&&type!=='login'){showToast('🔒 Acceso restringido a miembros');return;}
+  modalCtx={type,sub};
+  const body=document.getElementById('modal-body');
+  const title=document.getElementById('modal-title');
+  document.getElementById('content-modal').classList.add('open');
+
+  const inp=(id,lbl,ph,type='text')=>`<div class="m-field"><label>${lbl}</label><input id="${id}" type="${type}" placeholder="${ph}" style="width:100%;border:1px solid #ddd;border-radius:3px;padding:.6rem .8rem;font-family:var(--sans);font-size:.88rem;outline:none"></div>`;
+  const ta=(id,lbl,ph)=>`<div class="m-field"><label>${lbl}</label><textarea id="${id}" placeholder="${ph}" style="width:100%;border:1px solid #ddd;border-radius:3px;padding:.6rem .8rem;font-family:var(--sans);font-size:.88rem;min-height:70px;resize:vertical;outline:none"></textarea></div>`;
+
+  if(type==='destacada'){
+    title.textContent='⭐ Experiencia destacada';
+    body.innerHTML=inp('m-t','Título','Nombre del proyecto…')+ta('m-d','Descripción breve','Dos líneas sobre la experiencia…')+`<button class="m-submit" onclick="saveDestacada()">Publicar →</button>`;
+  } else if(type==='encuentro'){
+    title.textContent='📅 Próximo encuentro o noticia';
+    body.innerHTML=inp('m-et','Título','Ej: Jornada ApS Aragón 2025')+inp('m-ef','Fecha','','date')+ta('m-ed','Descripción','Lugar, horario, inscripción…')+`<button class="m-submit" onclick="saveEncuentro()">Publicar →</button>`;
+  } else if(type==='exp'){
+    title.textContent='➕ Nueva experiencia · '+capFirst(sub);
+    body.innerHTML=inp('m-xt','Título del proyecto','Nombre del proyecto…')+inp('m-xc','Centro / Entidad','Nombre del centro…')+ta('m-xd','Descripción','Breve descripción del proyecto…')+inp('m-xi','Imagen (URL opcional)','https://…','url')+`<p class="m-note">Los cambios son temporales durante esta sesión</p><button class="m-submit" onclick="saveExp()">Añadir experiencia →</button>`;
+  } else if(type==='comenzar'){
+    title.textContent='📄 Recurso · Comenzar en el ApS';
+    body.innerHTML=inp('m-rt','Título','Guía para iniciar un proyecto…')+inp('m-rd','Descripción breve','Una línea sobre el recurso')+inp('m-ru','Enlace (URL)','https://…','url')+inp('m-ri','Imagen de portada (URL opcional)','https://…','url')+`<button class="m-submit" onclick="saveRecurso()">Añadir recurso →</button>`;
+  } else if(type==='enclist'){
+    title.textContent='📅 Nuevo encuentro / noticia';
+    body.innerHTML=inp('m-lt','Título','Ej: Jornada ApS Zaragoza')+`<div class="m-field"><label>Tipo</label><select id="m-lk" style="width:100%;border:1px solid #ddd;border-radius:3px;padding:.6rem .8rem;font-family:var(--sans);font-size:.88rem"><option value="actividad">Próxima actividad</option><option value="jornada">Jornada</option><option value="noticia">Noticia</option></select></div>`+inp('m-lf','Fecha','','date')+ta('m-ld','Descripción','Lugar, horario, inscripción…')+`<button class="m-submit" onclick="saveEncList()">Publicar →</button>`;
+  } else if(type==='teamnames'){
+    title.textContent='✏ Nombres del equipo impulsor';
+    const names=[1,2,3,4].map(i=>`
+      <div class="m-field"><label>Persona ${i}</label>
+        <input id="m-fn${i}" type="text" placeholder="Nombre completo" value="${document.getElementById('fn'+i).textContent}" style="width:100%;border:1px solid #ddd;border-radius:3px;padding:.5rem .7rem;font-family:var(--sans);font-size:.85rem;margin-bottom:.3rem">
+        <input id="m-fp${i}" type="text" placeholder="Procedencia / entidad" value="${document.getElementById('fp'+i).textContent}" style="width:100%;border:1px solid #ddd;border-radius:3px;padding:.5rem .7rem;font-family:var(--sans);font-size:.85rem">
+      </div>`).join('');
+    body.innerHTML=names+`<button class="m-submit" onclick="saveTeamNames()">Guardar →</button>`;
+  }
+}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function closeBg(e,id){if(e.target.id===id)closeModal(id);}
+
+// ── SAVERS ──
+function v(id){return document.getElementById(id)?.value.trim()||'';}
+function capFirst(s){return s?s[0].toUpperCase()+s.slice(1):s;}
+
+function saveDestacada(){
+  const t=v('m-t');if(!t)return;
+  document.getElementById('dest-title').textContent=t;
+  document.getElementById('dest-sub').textContent=v('m-d');
+  closeModal('content-modal');showToast('✅ Experiencia destacada actualizada');
+}
+function saveEncuentro(){
+  const t=v('m-et');if(!t)return;
+  const f=document.getElementById('m-ef')?.value;
+  const fecha=f?new Date(f).toLocaleDateString('es-ES',{day:'2-digit',month:'short'}):'';
+  document.getElementById('enc-title').textContent=t;
+  document.getElementById('enc-sub').textContent=(fecha?fecha+' · ':'')+v('m-ed');
+  closeModal('content-modal');showToast('✅ Encuentro actualizado en portada');
+}
+function saveExp(){
+  const t=v('m-xt');if(!t)return;
+  const grid=document.getElementById('cards-'+modalCtx.sub);
+  grid.querySelector('.empty-state')?.remove();
+  const img=v('m-xi');
+  const card=document.createElement('div');card.className='exp-card';
+  card.innerHTML=`<div class="exp-card-img" style="${img?`background-image:url('${img}');background-size:cover`:''}">${img?'':'📚'}</div>
+    <div class="exp-card-body"><span class="exp-card-tag">${capFirst(modalCtx.sub)}</span><h4>${t}</h4><p>${v('m-xc')?'<strong>'+v('m-xc')+'</strong><br>':''}</p><p>${v('m-xd')}</p></div>`;
+  grid.appendChild(card);
+  closeModal('content-modal');showToast('✅ Experiencia añadida');
+}
+function saveRecurso(){
+  const t=v('m-rt');if(!t)return;
+  const grid=document.getElementById('comenzar-grid');
+  grid.querySelector('.empty-state')?.remove();
+  const img=v('m-ri');const url=v('m-ru');
+  const card=document.createElement('div');card.className='comenzar-card';
+  card.innerHTML=`<div class="comenzar-card-img" style="${img?`background-image:url('${img}');background-size:cover`:''}">${img?'':'📄'}</div>
+    <div class="comenzar-card-body"><h4>${t}</h4><p>${v('m-rd')}</p></div>`;
+  if(url)card.onclick=()=>window.open(url,'_blank');
+  grid.appendChild(card);
+  closeModal('content-modal');showToast('✅ Recurso añadido');
+}
+function saveEncList(){
+  const t=v('m-lt');if(!t)return;
+  const tipo=document.getElementById('m-lk').value;
+  const f=document.getElementById('m-lf')?.value;
+  const date=f?new Date(f):new Date();
+  const day=date.toLocaleDateString('es-ES',{day:'2-digit'});
+  const mon=date.toLocaleDateString('es-ES',{month:'short'}).toUpperCase();
+  const list=document.getElementById('enc-list');
+  list.querySelector('.empty-state')?.remove();
+  const item=document.createElement('div');item.className='enc-item';
+  item.innerHTML=`<div class="enc-date"><div class="day">${day}</div><div class="mon">${mon}</div></div>
+    <div class="enc-body"><span class="enc-tag ${tipo}">${capFirst(tipo)}</span><h4>${t}</h4><p>${v('m-ld')}</p></div>`;
+  list.appendChild(item);
+  closeModal('content-modal');showToast('✅ Encuentro publicado');
+}
+function saveTeamNames(){
+  for(let i=1;i<=4;i++){
+    const n=v('m-fn'+i);const p=v('m-fp'+i);
+    if(n)document.getElementById('fn'+i).textContent=n;
+    if(p)document.getElementById('fp'+i).textContent=p;
+  }
+  closeModal('content-modal');showToast('✅ Nombres del equipo actualizados');
+}
+
+// ── TABS ──
+function showTab(id,btn){
+  document.querySelectorAll('.exp-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.exp-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+
+function handleContact(e){e.preventDefault();showToast('✉️ Mensaje enviado. ¡Gracias!');}
+
+// ── TOAST ──
+function showToast(msg){
+  let t=document.getElementById('_toast');
+  if(!t){t=document.createElement('div');t.id='_toast';
+    Object.assign(t.style,{position:'fixed',bottom:'1.8rem',right:'1.8rem',background:'#1a1a1a',color:'#fff',padding:'.7rem 1.2rem',borderRadius:'5px',fontSize:'.84rem',zIndex:'9999',boxShadow:'0 4px 20px rgba(0,0,0,.35)',transition:'opacity .3s',maxWidth:'280px',lineHeight:'1.4'});
+    document.body.appendChild(t);}
+  t.textContent=msg;t.style.opacity='1';
+  clearTimeout(t._t);t._t=setTimeout(()=>t.style.opacity='0',3200);
+}
+</script>
+</body>
+</html>
