@@ -14,6 +14,14 @@
 }
 html{scroll-behavior:smooth}
 body{font-family:var(--sans);background:#fff;color:var(--dark);overflow-x:hidden}
+@import url('https://googleapis.com');
+
+.manuscrito-resaltado {
+    font-family: 'Indie Flower', cursive;
+    background-color: #ffb703; /* Amarillo anaranjado */
+    padding: 0 6px;
+    border-radius: 4px;
+}
 
 /* ── NAV ── */
 #topnav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(26,26,26,.96);backdrop-filter:blur(10px);display:flex;align-items:center;padding:0 1.2rem;height:54px;gap:.15rem}
@@ -257,7 +265,7 @@ footer a{color:rgba(255,255,255,.35);text-decoration:none} footer a:hover{color:
     <button class="nav-btn" data-s="experiencias" onclick="goTo('experiencias')">Experiencias</button>
     <button class="nav-btn" data-s="recursos" onclick="goTo('recursos')">Recursos</button>
     <button class="nav-btn" data-s="encuentros" onclick="goTo('encuentros')">Encuentros</button>
-    <button class="nav-btn" data-s="contacto" onclick="goTo('contacto')">Contacto</button>
+    <button class="nav-btn" data-s="contacto" onclick="goTo('contacto')">Participar</button>
   </div>
   <div class="nav-auth">
     <span class="logged-badge" id="logged-badge" style="display:none"></span>
@@ -269,13 +277,13 @@ footer a{color:rgba(255,255,255,.35);text-decoration:none} footer a:hover{color:
 <section id="inicio" style="scroll-margin-top:0">
   <div class="hero-bg"></div><div class="hero-ov"></div>
   <div class="hero-inner">
-    <span class="hero-tag">Grupo Territorial · RedApS</span>
-    <h1>Aprender haciendo<br>un <em>servicio</em><br>a la comunidad</h1>
+    <span class="hero-tag">Grupo Promotor Aprendizaje Servicio Aragón</span>
+    <h1><span class="manuscrito-resaltado">Aprender</span>  haciendo<br>un <em>servicio</em><br>a la comunidad</h1>
     <p class="hero-sub">El Grupo Promotor del ApS en Aragón une centros educativos, universidades y entidades sociales para transformar el aprendizaje en compromiso real.</p>
     <div class="quick-links">
       <button class="ql ql-primary" onclick="goTo('quees')">¿Qué es el ApS?</button>
       <button class="ql ql-ghost" onclick="goTo('experiencias')">Ver experiencias</button>
-      <button class="ql ql-ghost" onclick="goTo('quienes')">El grupo impulsor</button>
+      <button class="ql ql-ghost" onclick="goTo('quienes')">El grupo promotor</button>
       <button class="ql ql-ghost" onclick="goTo('contacto')">Contactar</button>
     </div>
   </div>
