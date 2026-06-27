@@ -1,10 +1,17 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>ApS Aragón</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<!-- Firebase 9+ -->
+<script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js"></script>
+
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -18,7 +25,7 @@ body{font-family:var(--sans);background:#fff;color:var(--dark);overflow-x:hidden
 
 .manuscrito-resaltado {
     font-family: 'Indie Flower', cursive;
-    color: #ffb703; /* Amarillo anaranjado */
+    color: #ffb703;
     padding: 0 6px;
     border-radius: 4px;
 }
@@ -27,7 +34,7 @@ body{font-family:var(--sans);background:#fff;color:var(--dark);overflow-x:hidden
 #topnav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(26,26,26,.96);backdrop-filter:blur(10px);display:flex;align-items:center;padding:0 1.2rem;height:54px;gap:.15rem}
 .nav-brand{font-family:var(--serif);font-size:1rem;color:#fff;white-space:nowrap;margin-right:.8rem;text-decoration:none;flex-shrink:0}
 .nav-items{display:flex;gap:.1rem;flex-wrap:nowrap;overflow-x:auto;flex:1}
-.nav-btn{background:none;border:none;cursor:pointer;font-family:var(--sans);font-size:.68rem;font-weight:500;letter-spacing:.04em;text-transform:uppercase;padding:.4rem .6rem;border-radius:3px;color:rgba(255,255,255,.65);transition:all .2s;white-space:nowrap;flex-shrink:0}
+.nav-btn{background:none;border:none;cursor:pointer;font-family:var(--sans);font-size:.68rem;font-weight:500;letter-spacing:.04em;text-transform:uppercase;padding:.4rem .6rem;border-radius:3px;color:rgba(255,255,255,.5);transition:all .2s}
 .nav-btn:hover,.nav-btn.active{color:#fff;background:rgba(255,255,255,.12)}
 .nav-btn[data-s="inicio"]{color:var(--c1)}
 .nav-btn[data-s="quienes"]{color:#6dc46a}
@@ -38,7 +45,7 @@ body{font-family:var(--sans);background:#fff;color:var(--dark);overflow-x:hidden
 .nav-btn[data-s="contacto"]{color:#e07090}
 /* Auth button in nav */
 .nav-auth{margin-left:auto;flex-shrink:0;display:flex;align-items:center;gap:.5rem}
-.nav-auth-btn{background:none;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.55);font-family:var(--sans);font-size:.66rem;font-weight:500;letter-spacing:.05em;text-transform:uppercase;padding:.35rem .7rem;border-radius:3px;cursor:pointer;transition:all .2s;white-space:nowrap}
+.nav-auth-btn{background:none;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.55);font-family:var(--sans);font-size:.66rem;font-weight:500;letter-spacing:.05em;text-transform:uppercase;padding:.3rem .6rem;border-radius:3px;cursor:pointer;transition:all .2s}
 .nav-auth-btn:hover{border-color:rgba(255,255,255,.5);color:#fff}
 .nav-auth-btn.logged{border-color:var(--c2);color:#6dc46a}
 .logged-badge{font-size:.62rem;color:rgba(255,255,255,.35);white-space:nowrap}
@@ -53,7 +60,7 @@ body{font-family:var(--sans);background:#fff;color:var(--dark);overflow-x:hidden
 .hero-inner h1 em{font-style:italic;color:#7de4c8}
 .hero-sub{color:rgba(255,255,255,.65);font-size:1.05rem;max-width:520px;line-height:1.7;margin-bottom:2.5rem}
 .quick-links{display:flex;flex-wrap:wrap;gap:.75rem}
-.ql{display:inline-flex;align-items:center;gap:.5rem;padding:.6rem 1.1rem;border-radius:3px;font-size:.8rem;font-weight:500;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;transition:all .25s;border:none;font-family:var(--sans)}
+.ql{display:inline-flex;align-items:center;gap:.5rem;padding:.6rem 1.1rem;border-radius:3px;font-size:.8rem;font-weight:500;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;transition:all .2s}
 .ql-primary{background:var(--c1);color:#fff} .ql-primary:hover{filter:brightness(1.15)}
 .ql-ghost{background:rgba(255,255,255,.1);color:rgba(255,255,255,.8);border:1px solid rgba(255,255,255,.25)} .ql-ghost:hover{background:rgba(255,255,255,.2)}
 .hero-cards{position:relative;z-index:2;display:grid;grid-template-columns:1fr 1fr;gap:1px;background:rgba(255,255,255,.08);border-top:1px solid rgba(255,255,255,.08)}
@@ -63,13 +70,13 @@ body{font-family:var(--sans);background:#fff;color:var(--dark);overflow-x:hidden
 .hcard-sub{font-size:.8rem;color:rgba(255,255,255,.5)}
 
 /* ── UPLOAD BUTTON (members only) ── */
-.upload-btn{position:absolute;top:.9rem;right:.9rem;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.5);font-size:.65rem;padding:.25rem .55rem;border-radius:2px;cursor:pointer;letter-spacing:.06em;text-transform:uppercase;font-family:var(--sans);transition:all .2s;display:none}
+.upload-btn{position:absolute;top:.9rem;right:.9rem;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.5);font-size:.65rem;padding:.25rem .55rem;border-radius:3px;cursor:pointer;transition:all .2s}
 .upload-btn:hover{background:rgba(255,255,255,.18);color:#fff}
 .members-only{display:none}
 body.authenticated .upload-btn{display:block}
 body.authenticated .members-only{display:flex}
 body.authenticated .add-exp-btn{display:inline-flex}
-.add-exp-btn{display:none;align-items:center;gap:.4rem;margin-top:1rem;padding:.5rem 1rem;background:transparent;border:1px dashed var(--c4);color:var(--c4);border-radius:3px;font-size:.78rem;cursor:pointer;font-family:var(--sans);transition:all .2s}
+.add-exp-btn{display:none;align-items:center;gap:.4rem;margin-top:1rem;padding:.5rem 1rem;background:transparent;border:1px dashed var(--c4);color:var(--c4);border-radius:3px;font-size:.78rem;cursor:pointer;transition:all .2s}
 .add-exp-btn:hover{background:var(--c4);color:#fff}
 .add-exp-btn.green{border-color:var(--c2);color:var(--c2)} .add-exp-btn.green:hover{background:var(--c2);color:#fff}
 .add-exp-btn.blue{border-color:var(--c5);color:var(--c5)} .add-exp-btn.blue:hover{background:var(--c5);color:#fff}
@@ -95,15 +102,9 @@ body.authenticated .add-exp-btn{display:inline-flex}
 .team-section{margin-top:3rem}
 .team-photo-wrap{position:relative;max-width:680px;border-radius:6px;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.15);background:#e0e0e0}
 .team-photo-wrap img{width:100%;display:block;vertical-align:bottom}
-/* Face hotspot zones — adjusted for 4 people side by side */
 .face-zone{position:absolute;width:16%;padding-top:20%;top:4%;border-radius:50%;cursor:pointer}
 .fz1{left:2%} .fz2{left:26%} .fz3{left:51%} .fz4{left:74%}
-.face-tooltip{
-  display:none;position:absolute;bottom:calc(100% + 10px);left:50%;transform:translateX(-50%);
-  background:rgba(26,26,26,.95);color:#fff;padding:.7rem 1.1rem;border-radius:5px;
-  white-space:nowrap;font-size:.8rem;line-height:1.5;z-index:10;pointer-events:none;
-  border-top:3px solid var(--c2);box-shadow:0 4px 16px rgba(0,0,0,.3);
-}
+.face-tooltip{display:none;position:absolute;bottom:calc(100% + 10px);left:50%;transform:translateX(-50%);background:rgba(26,26,26,.95);color:#fff;padding:.7rem 1.1rem;border-radius:5px;white-space:nowrap;font-size:.8rem;line-height:1.5;z-index:10;pointer-events:none;border-top:3px solid var(--c2);box-shadow:0 4px 16px rgba(0,0,0,.3)}
 .face-tooltip strong{display:block;font-size:.88rem;margin-bottom:.15rem}
 .face-tooltip span{color:rgba(255,255,255,.6);font-size:.75rem}
 .face-tooltip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:rgba(26,26,26,.95)}
@@ -159,7 +160,7 @@ body.authenticated .add-exp-btn{display:inline-flex}
 .comenzar-card-body{padding:.9rem}
 .comenzar-card-body h4{font-size:.88rem;font-weight:600;margin-bottom:.25rem;color:var(--dark)}
 .comenzar-card-body p{font-size:.75rem;color:#777;line-height:1.4}
-.profundizar-box{margin-top:1rem;display:flex;align-items:center;gap:1.5rem;padding:1.5rem;background:linear-gradient(135deg,#3a7bbf,#1a4a8f);border-radius:4px;color:#fff;text-decoration:none;transition:filter .2s}
+.profundizar-box{margin-top:1rem;display:flex;align-items:center;gap:1.5rem;padding:1.5rem;background:linear-gradient(135deg,#3a7bbf,#1a4a8f);border-radius:4px;color:#fff;text-decoration:none;transition:all .2s}
 .profundizar-box:hover{filter:brightness(1.1)}
 .pb-icon{font-size:2.5rem;opacity:.7}
 .profundizar-box h4{font-family:var(--serif);font-size:1.15rem;margin-bottom:.3rem}
@@ -221,7 +222,7 @@ footer a{color:rgba(255,255,255,.35);text-decoration:none} footer a:hover{color:
 .modal-body{padding:1.4rem;display:flex;flex-direction:column;gap:.9rem}
 .m-field{display:flex;flex-direction:column;gap:.35rem}
 .m-field label{font-size:.7rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#888}
-.m-field input,.m-field textarea,.m-field select{width:100%;border:1px solid #ddd;border-radius:3px;padding:.6rem .8rem;font-family:var(--sans);font-size:.88rem;outline:none;transition:border-color .2s;color:#333}
+.m-field input,.m-field textarea,.m-field select{width:100%;border:1px solid #ddd;border-radius:3px;padding:.6rem .8rem;font-family:var(--sans);font-size:.88rem;outline:none;transition:border-color .2s}
 .m-field input:focus,.m-field textarea:focus{border-color:var(--c5)}
 .m-field textarea{min-height:70px;resize:vertical}
 .m-submit{background:var(--c5);color:#fff;border:none;padding:.72rem 1.4rem;border-radius:3px;font-family:var(--sans);font-size:.85rem;font-weight:600;cursor:pointer;width:100%;letter-spacing:.04em;transition:filter .2s}
@@ -242,6 +243,9 @@ footer a{color:rgba(255,255,255,.35);text-decoration:none} footer a:hover{color:
 .input-wrap .inp-icon{position:absolute;left:.7rem;top:50%;transform:translateY(-50%);font-size:.9rem;pointer-events:none}
 #show-pass-btn{position:absolute;right:.7rem;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:.8rem;color:#aaa;padding:0}
 
+.toast{position:fixed;bottom:2rem;right:2rem;background:#4a8c3f;color:#fff;padding:1rem 1.5rem;border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,.2);z-index:9999;animation:slideIn .3s}
+@keyframes slideIn{from{transform:translateX(400px);opacity:0}to{transform:translateX(0);opacity:1}}
+
 @media(max-width:680px){
   #topnav{padding:0 .6rem}
   .nav-items{gap:.05rem}
@@ -250,6 +254,7 @@ footer a{color:rgba(255,255,255,.35);text-decoration:none} footer a:hover{color:
   .hero-cards{grid-template-columns:1fr}
   .info-grid,.contact-grid{grid-template-columns:1fr}
   .logged-badge{display:none}
+  .toast{bottom:1rem;right:1rem;left:1rem}
 }
 </style>
 </head>
@@ -278,7 +283,7 @@ footer a{color:rgba(255,255,255,.35);text-decoration:none} footer a:hover{color:
   <div class="hero-bg"></div><div class="hero-ov"></div>
   <div class="hero-inner">
     <span class="hero-tag">Grupo Promotor Aprendizaje Servicio Aragón</span>
-    <h1><span class="manuscrito-resaltado">Aprender</span>  haciendo<br>un <em>servicio</em><br>a la comunidad</h1>
+    <h1><span class="manuscrito-resaltado">Aprender</span> haciendo<br>un <em>servicio</em><br>a la comunidad</h1>
     <p class="hero-sub">El Grupo Promotor del ApS en Aragón une centros educativos, universidades y entidades sociales para transformar el aprendizaje en compromiso real.</p>
     <div class="quick-links">
       <button class="ql ql-primary" onclick="goTo('quees')">¿Qué es el ApS?</button>
@@ -288,7 +293,6 @@ footer a{color:rgba(255,255,255,.35);text-decoration:none} footer a:hover{color:
     </div>
   </div>
   <div class="hero-cards">
-
     <div class="hcard" style="background-color: #1e3a8a; color: #ffffff; padding: 15px; border-radius: 8px;">
       <div class="hcard-label">📅 Próximo encuentro o noticia</div>
       <div class="hcard-title" id="enc-title"><em>Claves para presentar tu proyecto a los premios APS 2026</em><br>
@@ -316,18 +320,13 @@ footer a{color:rgba(255,255,255,.35);text-decoration:none} footer a:hover{color:
     <h2 class="s-title">El Grupo Promotor<br>del ApS en Aragón</h2>
     <div class="divider"></div>
     <div class="s-body">
-      <p>Somos un grupo de personas provenientes de centros educativos de todos los niveles, de la universidad, de entidades sociales y de instituciones públicas que creemos en el potencial del Aprendizaje-Servicio para transformar la educación y la comunidad.</p>
+      <p>Somos un grupo de personas provenientes de centros educativos de todos los niveles, de la universidad, de entidades sociales y de instituciones públicas que creemos en el potencial del Aprendizaje-Servicio.</p>
       <p>Formamos parte de la Red Española de Aprendizaje-Servicio (REDAPS) como grupo territorial de Aragón, impulsando la metodología en todo el territorio aragonés.</p>
     </div>
     <div class="team-section">
       <h3 style="font-family:var(--serif);font-size:1.2rem;margin-bottom:.5rem">Grupo Promotor</h3>
-    
       <div class="team-photo-wrap" id="team-wrap">
-        <!-- ▶ FOTO REAL del equipo — ir actualizando esta foto conforme se incorporen más miembros -->
-        <img id="team-img"
-          src="foto_grupo.png"
-          alt="Grupo Promotor ApS Aragón" style="width:100%;display:block">
-        <!-- Zonas de cara — ajusta top/left/width/padding-top según la foto real -->
+        <img id="team-img" src="foto_grupo.png" alt="Grupo Promotor ApS Aragón" style="width:100%;display:block">
         <div class="face-zone fz1">
           <div class="face-tooltip"><strong id="fn1">Persona 1</strong><span id="fp1">Centro educativo</span></div>
         </div>
@@ -341,12 +340,11 @@ footer a{color:rgba(255,255,255,.35);text-decoration:none} footer a:hover{color:
           <div class="face-tooltip"><strong id="fn4">Persona 4</strong><span id="fp4">Gobierno de Aragón</span></div>
         </div>
       </div>
-      <!-- Members-only: edit team names -->
       <button class="add-exp-btn green members-only" style="margin-top:.8rem" onclick="openModal('teamnames')">✏ Editar nombres del equipo</button>
     </div>
     <div class="info-grid" style="margin-top:2.5rem">
       <div class="info-card"><h3>Qué hacemos</h3><p>Promovemos, acompañamos y difundimos proyectos ApS en Aragón. Organizamos formaciones, jornadas y encuentros entre centros y entidades.</p></div>
-      <div class="info-card"><h3>Cómo participar</h3><p>El grupo está abierto a cualquier persona o entidad interesada. Contáctanos para más información sobre cómo sumarte o iniciar un proyecto ApS.</p></div>
+      <div class="info-card"><h3>Cómo participar</h3><p>El grupo está abierto a cualquier persona o entidad interesada. Contáctanos para más información sobre cómo sumarte o iniciar un proyecto.</p></div>
     </div>
   </div>
 </section>
@@ -355,7 +353,7 @@ footer a{color:rgba(255,255,255,.35);text-decoration:none} footer a:hover{color:
 <section class="section" id="quees">
   <div class="section-inner">
     <p class="s-label">Qué es el ApS</p>
-    <h2 class="s-title">Aprender <br> a través del compromiso<br> social.</h2>
+    <h2 class="s-title">Aprender<br>a través del compromiso<br>social.</h2>
     <div class="divider"></div>
     <div class="formula-box">
       <div class="f-item">📚 Aprendizaje curricular</div>
@@ -419,12 +417,7 @@ footer a{color:rgba(255,255,255,.35);text-decoration:none} footer a:hover{color:
       <div class="res-block" style="border-color:var(--c5)">
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;margin-bottom:1rem">
           <h3>🚀 Comenzar en el ApS</h3>
-            <ul class="res-list">
-              <li><a href="https://www.aprendizajeservicio.net/como-empezar/?id_shown=como_se_hace" target="_blank">Recursos REDAPS para empezar</a></li>
-         
-              <li><a href="https://aprendizajeservicio.net/wp-content/uploads/2019/12/100-buenas-prc3a1cticas-de-aprendizaje-servicio-102342.pdf" target="_blank">Inventario de proyectos ApS</a></li>
-        </ul>
-         <button class="add-exp-btn blue members-only" style="margin-top:0" onclick="openModal('comenzar')">＋ Añadir recurso</button>
+          <button class="add-exp-btn blue members-only" style="margin-top:0" onclick="openModal('comenzar')">＋ Añadir recurso</button>
         </div>
         <div class="comenzar-grid" id="comenzar-grid">
           <div class="empty-state" style="grid-column:1/-1"><span class="es-icon">📄</span>Añade documentos y guías para empezar</div>
@@ -490,7 +483,6 @@ footer a{color:rgba(255,255,255,.35);text-decoration:none} footer a:hover{color:
         <div class="ci-item"><div class="ci-icon web">🌐</div><div class="ci-text"><h4>Red Española de ApS</h4><a href="https://www.aprendizajeservicio.net" target="_blank">aprendizajeservicio.net</a></div></div>
         <div class="ci-item"><div class="ci-icon redes">📱</div><div class="ci-text"><h4>Redes sociales</h4><p>@REDAPS1 en Twitter / X</p></div></div>
       </div>
-      
     </div>
   </div>
 </section>
@@ -498,233 +490,390 @@ footer a{color:rgba(255,255,255,.35);text-decoration:none} footer a:hover{color:
 <footer>
   <span class="footer-logo">ApS Aragón</span>
   <span>Grupo territorial de la <a href="https://www.aprendizajeservicio.net" target="_blank">Red Española de Aprendizaje-Servicio</a></span>
-  <span>© 2025 ApS Aragón</span>
 </footer>
 
-<!-- ══ LOGIN MODAL ══ -->
-<div class="modal-bg" id="login-modal" onclick="closeBg(event,'login-modal')">
+<!-- ══ MODALS ══ -->
+<div class="modal-bg" id="login-modal">
   <div class="modal">
-    <div class="modal-head" style="background:var(--dark)">
-      <h3 style="color:#fff;font-family:var(--serif)">Acceso · Equipo Impulsor</h3>
-      <button class="modal-close" style="color:rgba(255,255,255,.5)" onclick="closeModal('login-modal')">×</button>
-    </div>
+    <div class="modal-head"><h3>🔐 Acceso Miembros</h3><button class="modal-close" onclick="closeModal()">✕</button></div>
     <div class="modal-body">
-      <div class="login-icon">🌿</div>
-      <p class="login-subtitle">Usuarios</p>
+      <div class="login-icon">🔑</div>
+      <div class="login-subtitle">Ingresa tu contraseña</div>
       <div class="m-field">
-        <label>Usuario</label>
-        <div class="input-wrap">
-          <span class="inp-icon">👤</span>
-          <input id="login-user" type="text" placeholder="Nombre de usuario" autocomplete="username" onkeydown="if(event.key==='Enter')doLogin()">
-        </div>
+        <input type="password" id="login-pass" class="cf-input" placeholder="Contraseña" onkeypress="if(event.key==='Enter')login()">
       </div>
-      <div class="m-field">
-        <label>Contraseña</label>
-        <div class="input-wrap">
-          <span class="inp-icon">🔑</span>
-          <input id="login-pass" type="password" placeholder="Contraseña" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
-          <button id="show-pass-btn" type="button" onclick="togglePass()" title="Mostrar/ocultar">👁</button>
-        </div>
-      </div>
-      <p class="m-err" id="login-err">Usuario o contraseña incorrectos</p>
-      <button class="m-submit" style="background:var(--c2)" onclick="doLogin()">Entrar →</button>
-      <p class="m-note">Si no recuerdas tus credenciales, contacta con el coordinador del grupo.</p>
+      <div class="m-err" id="login-err">Contraseña incorrecta</div>
+      <button class="m-submit" onclick="login()">Acceder</button>
     </div>
   </div>
 </div>
 
-<!-- ══ CONTENT MODAL ══ -->
-<div class="modal-bg" id="content-modal" onclick="closeBg(event,'content-modal')">
+<div class="modal-bg" id="content-modal">
   <div class="modal">
-    <div class="modal-head">
-      <h3 id="modal-title">Publicar</h3>
-      <button class="modal-close" onclick="closeModal('content-modal')">×</button>
-    </div>
-    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-head"><h3 id="modal-title">Añadir</h3><button class="modal-close" onclick="closeModal('content-modal')">✕</button></div>
+    <div class="modal-body" id="modal-content"></div>
   </div>
 </div>
 
 <script>
-// ── MEMBERS (user/password pairs) ──
-// Cambia o amplía estas credenciales según vuestros miembros
-const MEMBERS=[
-  {user:'equipo',  pass:'aps2025',   name:'Equipo ApS'},
-  {user:'miembro1',pass:'aragón1',   name:'Miembro 1'},
-  {user:'miembro2',pass:'aragón2',   name:'Miembro 2'},
-];
-let currentUser=null;
+// ══════════════════════════════════════════════════════════════════════
+// FIREBASE CONFIGURATION
+// ══════════════════════════════════════════════════════════════════════
 
-// ── NAV SCROLL ──
-function goTo(id){document.getElementById(id).scrollIntoView({behavior:'smooth'})}
-const io=new IntersectionObserver(es=>{
-  es.forEach(e=>{if(e.isIntersecting){
-    document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-    const b=document.querySelector(`.nav-btn[data-s="${e.target.id}"]`);
-    if(b)b.classList.add('active');
-  }});
-},{threshold:.2,rootMargin:'-54px 0px 0px 0px'});
-['inicio','quienes','quees','experiencias','recursos','encuentros','contacto'].forEach(s=>{
-  const el=document.getElementById(s);if(el)io.observe(el);
+// 🔴 IMPORTANTE: Reemplaza esto con tus credenciales de Firebase
+// Sigue los pasos en: https://console.firebase.google.com
+const firebaseConfig = {
+  apiKey: "AIzaSyA-TU_API_KEY_AQUI",  // 👈 CAMBIA ESTO
+  authDomain: "tu-proyecto.firebaseapp.com",  // 👈 CAMBIA ESTO
+  databaseURL: "https://tu-proyecto-default-rtdb.firebaseio.com",  // 👈 CAMBIA ESTO
+  projectId: "tu-proyecto",  // 👈 CAMBIA ESTO
+  storageBucket: "tu-proyecto.appspot.com",  // 👈 CAMBIA ESTO
+  messagingSenderId: "1234567890",  // 👈 CAMBIA ESTO
+  appId: "1:1234567890:web:abcdef123456"  // 👈 CAMBIA ESTO
+};
+
+// Inicializa Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// ══════════════════════════════════════════════════════════════════════
+// VARIABLES GLOBALES
+// ══════════════════════════════════════════════════════════════════════
+
+const ADMIN_PASS = "ApS2024Aragón"; // Cambia esto por tu contraseña
+let isAuthenticated = false;
+let modalCtx = {};
+
+// ══════════════════════════════════════════════════════════════════════
+// UTILIDADES
+// ══════════════════════════════════════════════════════════════════════
+
+function v(id) { return document.getElementById(id)?.value || ''; }
+function el(id) { return document.getElementById(id); }
+function capFirst(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+
+function goTo(section) {
+  el(section)?.scrollIntoView({ behavior: 'smooth' });
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// AUTENTICACIÓN
+// ══════════════════════════════════════════════════════════════════════
+
+function toggleAuth() {
+  if (isAuthenticated) {
+    isAuthenticated = false;
+    document.body.classList.remove('authenticated');
+    el('auth-toggle-btn').classList.remove('logged');
+    el('logged-badge').style.display = 'none';
+    el('auth-toggle-btn').textContent = '🔒 Miembros';
+    localStorage.removeItem('aps-auth');
+    showToast('✓ Sesión cerrada');
+  } else {
+    el('login-modal').classList.add('open');
+  }
+}
+
+function login() {
+  const pass = v('login-pass');
+  if (pass === ADMIN_PASS) {
+    isAuthenticated = true;
+    document.body.classList.add('authenticated');
+    el('auth-toggle-btn').classList.add('logged');
+    el('logged-badge').textContent = '✓ Miembro';
+    el('logged-badge').style.display = 'inline';
+    el('auth-toggle-btn').textContent = '🔓 Cerrar sesión';
+    localStorage.setItem('aps-auth', 'true');
+    closeModal();
+    showToast('✓ Bienvenido');
+  } else {
+    el('login-err').style.display = 'block';
+  }
+}
+
+// Verificar sesión al cargar
+window.addEventListener('DOMContentLoaded', () => {
+  if (localStorage.getItem('aps-auth')) {
+    isAuthenticated = true;
+    document.body.classList.add('authenticated');
+    el('auth-toggle-btn').classList.add('logged');
+    el('logged-badge').style.display = 'inline';
+    el('auth-toggle-btn').textContent = '🔓 Cerrar sesión';
+  }
+  loadAllData();
 });
 
-// ── AUTH ──
-function toggleAuth(){
-  if(currentUser){doLogout();}
-  else{document.getElementById('login-modal').classList.add('open');setTimeout(()=>document.getElementById('login-user').focus(),100);}
-}
-function doLogin(){
-  const u=document.getElementById('login-user').value.trim();
-  const p=document.getElementById('login-pass').value;
-  const m=MEMBERS.find(x=>x.user===u&&x.pass===p);
-  if(!m){document.getElementById('login-err').style.display='block';document.getElementById('login-pass').value='';return;}
-  currentUser=m;
-  closeModal('login-modal');
-  document.body.classList.add('authenticated');
-  document.getElementById('auth-toggle-btn').textContent='🔓 Salir';
-  document.getElementById('auth-toggle-btn').classList.add('logged');
-  document.getElementById('logged-badge').textContent='👋 '+m.name;
-  document.getElementById('logged-badge').style.display='inline';
-  document.getElementById('add-enc-btn').style.display='inline-flex';
-  showToast('✅ Bienvenido/a, '+m.name);
-}
-function doLogout(){
-  currentUser=null;
-  document.body.classList.remove('authenticated');
-  document.getElementById('auth-toggle-btn').textContent='🔒 Miembros';
-  document.getElementById('auth-toggle-btn').classList.remove('logged');
-  document.getElementById('logged-badge').style.display='none';
-  document.getElementById('add-enc-btn').style.display='none';
-  showToast('👋 Sesión cerrada');
-}
-function togglePass(){
-  const i=document.getElementById('login-pass');
-  i.type=i.type==='password'?'text':'password';
-}
+// ══════════════════════════════════════════════════════════════════════
+// MODALES
+// ══════════════════════════════════════════════════════════════════════
 
-// ── MODALS ──
-let modalCtx={};
-function openModal(type,sub){
-  if(!currentUser&&type!=='login'){showToast('🔒 Acceso restringido a miembros');return;}
-  modalCtx={type,sub};
-  const body=document.getElementById('modal-body');
-  const title=document.getElementById('modal-title');
-  document.getElementById('content-modal').classList.add('open');
-
-  const inp=(id,lbl,ph,type='text')=>`<div class="m-field"><label>${lbl}</label><input id="${id}" type="${type}" placeholder="${ph}" style="width:100%;border:1px solid #ddd;border-radius:3px;padding:.6rem .8rem;font-family:var(--sans);font-size:.88rem;outline:none"></div>`;
-  const ta=(id,lbl,ph)=>`<div class="m-field"><label>${lbl}</label><textarea id="${id}" placeholder="${ph}" style="width:100%;border:1px solid #ddd;border-radius:3px;padding:.6rem .8rem;font-family:var(--sans);font-size:.88rem;min-height:70px;resize:vertical;outline:none"></textarea></div>`;
-
-  if(type==='destacada'){
-    title.textContent='⭐ Experiencia destacada';
-    body.innerHTML=inp('m-t','Título','Nombre del proyecto…')+ta('m-d','Descripción breve','Dos líneas sobre la experiencia…')+`<button class="m-submit" onclick="saveDestacada()">Publicar →</button>`;
-  } else if(type==='encuentro'){
-    title.textContent='📅 Próximo encuentro o noticia';
-    body.innerHTML=inp('m-et','Título','Ej: Jornada ApS Aragón 2025')+inp('m-ef','Fecha','','date')+ta('m-ed','Descripción','Lugar, horario, inscripción…')+`<button class="m-submit" onclick="saveEncuentro()">Publicar →</button>`;
-  } else if(type==='exp'){
-    title.textContent='➕ Nueva experiencia · '+capFirst(sub);
-    body.innerHTML=inp('m-xt','Título del proyecto','Nombre del proyecto…')+inp('m-xc','Centro / Entidad','Nombre del centro…')+ta('m-xd','Descripción','Breve descripción del proyecto…')+inp('m-xi','Imagen (URL opcional)','https://…','url')+`<p class="m-note">Los cambios son temporales durante esta sesión</p><button class="m-submit" onclick="saveExp()">Añadir experiencia →</button>`;
-  } else if(type==='comenzar'){
-    title.textContent='📄 Recurso · Comenzar en el ApS';
-    body.innerHTML=inp('m-rt','Título','Guía para iniciar un proyecto…')+inp('m-rd','Descripción breve','Una línea sobre el recurso')+inp('m-ru','Enlace (URL)','https://…','url')+inp('m-ri','Imagen de portada (URL opcional)','https://…','url')+`<button class="m-submit" onclick="saveRecurso()">Añadir recurso →</button>`;
-  } else if(type==='enclist'){
-    title.textContent='📅 Nuevo encuentro / noticia';
-    body.innerHTML=inp('m-lt','Título','Ej: Jornada ApS Zaragoza')+`<div class="m-field"><label>Tipo</label><select id="m-lk" style="width:100%;border:1px solid #ddd;border-radius:3px;padding:.6rem .8rem;font-family:var(--sans);font-size:.88rem"><option value="actividad">Próxima actividad</option><option value="jornada">Jornada</option><option value="noticia">Noticia</option></select></div>`+inp('m-lf','Fecha','','date')+ta('m-ld','Descripción','Lugar, horario, inscripción…')+`<button class="m-submit" onclick="saveEncList()">Publicar →</button>`;
-  } else if(type==='teamnames'){
-    title.textContent='✏ Nombres del equipo impulsor';
-    const names=[1,2,3,4].map(i=>`
-      <div class="m-field"><label>Persona ${i}</label>
-        <input id="m-fn${i}" type="text" placeholder="Nombre completo" value="${document.getElementById('fn'+i).textContent}" style="width:100%;border:1px solid #ddd;border-radius:3px;padding:.5rem .7rem;font-family:var(--sans);font-size:.85rem;margin-bottom:.3rem">
-        <input id="m-fp${i}" type="text" placeholder="Procedencia / entidad" value="${document.getElementById('fp'+i).textContent}" style="width:100%;border:1px solid #ddd;border-radius:3px;padding:.5rem .7rem;font-family:var(--sans);font-size:.85rem">
-      </div>`).join('');
-    body.innerHTML=names+`<button class="m-submit" onclick="saveTeamNames()">Guardar →</button>`;
+function openModal(type, subtype) {
+  if (!isAuthenticated) {
+    showToast('⚠ Solo miembros pueden añadir contenido');
+    return;
   }
-}
-function closeModal(id){document.getElementById(id).classList.remove('open');}
-function closeBg(e,id){if(e.target.id===id)closeModal(id);}
 
-// ── SAVERS ──
-function v(id){return document.getElementById(id)?.value.trim()||'';}
-function capFirst(s){return s?s[0].toUpperCase()+s.slice(1):s;}
+  const content = el('modal-content');
+  modalCtx = { type, sub: subtype };
 
-function saveDestacada(){
-  const t=v('m-t');if(!t)return;
-  document.getElementById('dest-title').textContent=t;
-  document.getElementById('dest-sub').textContent=v('m-d');
-  closeModal('content-modal');showToast('✅ Experiencia destacada actualizada');
+  switch(type) {
+    case 'exp':
+      el('modal-title').textContent = `Añadir experiencia (${capFirst(subtype)})`;
+      content.innerHTML = `
+        <div class="m-field"><label>Título del proyecto</label><input id="m-xt" class="cf-input" placeholder="Ej: Huerto escolar comunitario"></div>
+        <div class="m-field"><label>Centro/Institución</label><input id="m-xc" class="cf-input" placeholder="Ej: IES San José"></div>
+        <div class="m-field"><label>Descripción</label><textarea id="m-xd" class="cf-input" placeholder="Describe brevemente el proyecto..."></textarea></div>
+        <div class="m-field"><label>URL Imagen (opcional)</label><input id="m-xi" class="cf-input" placeholder="https://..."></div>
+        <button class="m-submit" onclick="saveExp()">Publicar experiencia</button>
+      `;
+      break;
+    case 'comenzar':
+      el('modal-title').textContent = 'Añadir recurso';
+      content.innerHTML = `
+        <div class="m-field"><label>Título</label><input id="m-rt" class="cf-input" placeholder="Nombre del recurso"></div>
+        <div class="m-field"><label>Descripción</label><textarea id="m-rd" class="cf-input" placeholder="¿De qué trata?"></textarea></div>
+        <div class="m-field"><label>Enlace (opcional)</label><input id="m-ru" class="cf-input" placeholder="https://..."></div>
+        <div class="m-field"><label>URL Imagen (opcional)</label><input id="m-ri" class="cf-input" placeholder="https://..."></div>
+        <button class="m-submit" onclick="saveRecurso()">Añadir recurso</button>
+      `;
+      break;
+    case 'enclist':
+      el('modal-title').textContent = 'Añadir encuentro o noticia';
+      content.innerHTML = `
+        <div class="m-field"><label>Título</label><input id="m-lt" class="cf-input" placeholder="Título del evento"></div>
+        <div class="m-field"><label>Tipo</label><select id="m-lk" class="cf-input"><option>jornada</option><option>noticia</option><option>actividad</option></select></div>
+        <div class="m-field"><label>Fecha</label><input id="m-lf" type="date" class="cf-input"></div>
+        <div class="m-field"><label>Descripción</label><textarea id="m-ld" class="cf-input" placeholder="Detalles..."></textarea></div>
+        <button class="m-submit" onclick="saveEncList()">Publicar</button>
+      `;
+      break;
+    case 'destacada':
+      el('modal-title').textContent = 'Experiencia destacada';
+      content.innerHTML = `
+        <div class="m-field"><label>Título</label><input id="m-t" class="cf-input"></div>
+        <div class="m-field"><label>Descripción</label><textarea id="m-d" class="cf-input"></textarea></div>
+        <button class="m-submit" onclick="saveDestacada()">Guardar</button>
+      `;
+      break;
+  }
+  
+  el('content-modal').classList.add('open');
 }
-function saveEncuentro(){
-  const t=v('m-et');if(!t)return;
-  const f=document.getElementById('m-ef')?.value;
-  const fecha=f?new Date(f).toLocaleDateString('es-ES',{day:'2-digit',month:'short'}):'';
-  document.getElementById('enc-title').textContent=t;
-  document.getElementById('enc-sub').textContent=(fecha?fecha+' · ':'')+v('m-ed');
-  closeModal('content-modal');showToast('✅ Encuentro actualizado en portada');
+
+function closeModal(id = 'login-modal') {
+  el(id).classList.remove('open');
+  el('login-err').style.display = 'none';
+  el('login-pass').value = '';
 }
-function saveExp(){
-  const t=v('m-xt');if(!t)return;
-  const grid=document.getElementById('cards-'+modalCtx.sub);
+
+// ══════════════════════════════════════════════════════════════════════
+// GUARDAR EN FIREBASE
+// ══════════════════════════════════════════════════════════════════════
+
+function saveExp() {
+  const t = v('m-xt');
+  if (!t) { showToast('⚠ Falta el título'); return; }
+
+  const expData = {
+    titulo: t,
+    centro: v('m-xc'),
+    descripcion: v('m-xd'),
+    imagen: v('m-xi'),
+    categoria: modalCtx.sub,
+    timestamp: new Date().toISOString()
+  };
+
+  db.ref(`experiencias/${modalCtx.sub}`).push().set(expData, (err) => {
+    if (err) {
+      showToast('❌ Error al guardar');
+    } else {
+      addExpCard(expData);
+      closeModal('content-modal');
+      showToast('✓ Experiencia publicada');
+    }
+  });
+}
+
+function saveRecurso() {
+  const t = v('m-rt');
+  if (!t) { showToast('⚠ Falta el título'); return; }
+
+  const resData = {
+    titulo: t,
+    descripcion: v('m-rd'),
+    enlace: v('m-ru'),
+    imagen: v('m-ri'),
+    timestamp: new Date().toISOString()
+  };
+
+  db.ref('recursos').push().set(resData, (err) => {
+    if (err) {
+      showToast('❌ Error al guardar');
+    } else {
+      addResourceCard(resData);
+      closeModal('content-modal');
+      showToast('✓ Recurso añadido');
+    }
+  });
+}
+
+function saveEncList() {
+  const t = v('m-lt');
+  if (!t) { showToast('⚠ Falta el título'); return; }
+
+  const encData = {
+    titulo: t,
+    tipo: el('m-lk').value,
+    descripcion: v('m-ld'),
+    fecha: v('m-lf'),
+    timestamp: new Date().toISOString()
+  };
+
+  db.ref('encuentros').push().set(encData, (err) => {
+    if (err) {
+      showToast('❌ Error al guardar');
+    } else {
+      addEncItem(encData);
+      closeModal('content-modal');
+      showToast('✓ Encuentro publicado');
+    }
+  });
+}
+
+function saveDestacada() {
+  const t = v('m-t');
+  if (!t) { showToast('⚠ Falta el título'); return; }
+
+  const destData = {
+    titulo: t,
+    descripcion: v('m-d'),
+    timestamp: new Date().toISOString()
+  };
+
+  db.ref('destacada').set(destData, (err) => {
+    if (err) {
+      showToast('❌ Error al guardar');
+    } else {
+      el('dest-title').textContent = t;
+      el('dest-sub').textContent = v('m-d');
+      closeModal('content-modal');
+      showToast('✓ Experiencia destacada actualizada');
+    }
+  });
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// RENDERIZAR CARDS
+// ══════════════════════════════════════════════════════════════════════
+
+function addExpCard(exp) {
+  const grid = el(`cards-${exp.categoria}`);
   grid.querySelector('.empty-state')?.remove();
-  const img=v('m-xi');
-  const card=document.createElement('div');card.className='exp-card';
-  card.innerHTML=`<div class="exp-card-img" style="${img?`background-image:url('${img}');background-size:cover`:''}">${img?'':'📚'}</div>
-    <div class="exp-card-body"><span class="exp-card-tag">${capFirst(modalCtx.sub)}</span><h4>${t}</h4><p>${v('m-xc')?'<strong>'+v('m-xc')+'</strong><br>':''}</p><p>${v('m-xd')}</p></div>`;
+  
+  const card = document.createElement('div');
+  card.className = 'exp-card';
+  card.innerHTML = `
+    <div class="exp-card-img" style="${exp.imagen ? `background-image:url('${exp.imagen}');background-size:cover` : ''}">${exp.imagen ? '' : '📚'}</div>
+    <div class="exp-card-body">
+      <span class="exp-card-tag">${capFirst(exp.categoria)}</span>
+      <h4>${exp.titulo}</h4>
+      <p>${exp.centro ? '<strong>' + exp.centro + '</strong><br>' : ''}${exp.descripcion}</p>
+    </div>
+  `;
   grid.appendChild(card);
-  closeModal('content-modal');showToast('✅ Experiencia añadida');
 }
-function saveRecurso(){
-  const t=v('m-rt');if(!t)return;
-  const grid=document.getElementById('comenzar-grid');
+
+function addResourceCard(res) {
+  const grid = el('comenzar-grid');
   grid.querySelector('.empty-state')?.remove();
-  const img=v('m-ri');const url=v('m-ru');
-  const card=document.createElement('div');card.className='comenzar-card';
-  card.innerHTML=`<div class="comenzar-card-img" style="${img?`background-image:url('${img}');background-size:cover`:''}">${img?'':'📄'}</div>
-    <div class="comenzar-card-body"><h4>${t}</h4><p>${v('m-rd')}</p></div>`;
-  if(url)card.onclick=()=>window.open(url,'_blank');
+  
+  const card = document.createElement('div');
+  card.className = 'comenzar-card';
+  card.innerHTML = `
+    <div class="comenzar-card-img" style="${res.imagen ? `background-image:url('${res.imagen}');background-size:cover` : ''}">${res.imagen ? '' : '📄'}</div>
+    <div class="comenzar-card-body"><h4>${res.titulo}</h4><p>${res.descripcion}</p></div>
+  `;
+  if (res.enlace) card.onclick = () => window.open(res.enlace, '_blank');
   grid.appendChild(card);
-  closeModal('content-modal');showToast('✅ Recurso añadido');
 }
-function saveEncList(){
-  const t=v('m-lt');if(!t)return;
-  const tipo=document.getElementById('m-lk').value;
-  const f=document.getElementById('m-lf')?.value;
-  const date=f?new Date(f):new Date();
-  const day=date.toLocaleDateString('es-ES',{day:'2-digit'});
-  const mon=date.toLocaleDateString('es-ES',{month:'short'}).toUpperCase();
-  const list=document.getElementById('enc-list');
+
+function addEncItem(enc) {
+  const list = el('enc-list');
   list.querySelector('.empty-state')?.remove();
-  const item=document.createElement('div');item.className='enc-item';
-  item.innerHTML=`<div class="enc-date"><div class="day">${day}</div><div class="mon">${mon}</div></div>
-    <div class="enc-body"><span class="enc-tag ${tipo}">${capFirst(tipo)}</span><h4>${t}</h4><p>${v('m-ld')}</p></div>`;
+  
+  const date = new Date(enc.fecha);
+  const day = date.toLocaleDateString('es-ES', {day: '2-digit'});
+  const mon = date.toLocaleDateString('es-ES', {month: 'short'}).toUpperCase();
+  
+  const item = document.createElement('div');
+  item.className = 'enc-item';
+  item.innerHTML = `
+    <div class="enc-date"><div class="day">${day}</div><div class="mon">${mon}</div></div>
+    <div class="enc-body">
+      <span class="enc-tag ${enc.tipo}">${capFirst(enc.tipo)}</span>
+      <h4>${enc.titulo}</h4>
+      <p>${enc.descripcion}</p>
+    </div>
+  `;
   list.appendChild(item);
-  closeModal('content-modal');showToast('✅ Encuentro publicado');
-}
-function saveTeamNames(){
-  for(let i=1;i<=4;i++){
-    const n=v('m-fn'+i);const p=v('m-fp'+i);
-    if(n)document.getElementById('fn'+i).textContent=n;
-    if(p)document.getElementById('fp'+i).textContent=p;
-  }
-  closeModal('content-modal');showToast('✅ Nombres del equipo actualizados');
 }
 
-// ── TABS ──
-function showTab(id,btn){
-  document.querySelectorAll('.exp-panel').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.exp-tab').forEach(t=>t.classList.remove('active'));
-  document.getElementById('panel-'+id).classList.add('active');
+// ══════════════════════════════════════════════════════════════════════
+// CARGAR DATOS DESDE FIREBASE
+// ══════════════════════════════════════════════════════════════════════
+
+function loadAllData() {
+  // Cargar experiencias
+  ['infantil', 'secundaria', 'fp', 'universidad', 'entidades'].forEach(cat => {
+    db.ref(`experiencias/${cat}`).on('value', snapshot => {
+      const exps = snapshot.val();
+      if (exps) {
+        Object.values(exps).forEach(exp => addExpCard(exp));
+      }
+    });
+  });
+
+  // Cargar recursos
+  db.ref('recursos').on('value', snapshot => {
+    const recursos = snapshot.val();
+    if (recursos) {
+      Object.values(recursos).forEach(res => addResourceCard(res));
+    }
+  });
+
+  // Cargar encuentros
+  db.ref('encuentros').on('value', snapshot => {
+    const encuentros = snapshot.val();
+    if (encuentros) {
+      Object.values(encuentros).forEach(enc => addEncItem(enc));
+    }
+  });
+
+  // Cargar destacada
+  db.ref('destacada').on('value', snapshot => {
+    const dest = snapshot.val();
+    if (dest) {
+      el('dest-title').textContent = dest.titulo;
+      el('dest-sub').textContent = dest.descripcion;
+    }
+  });
+}
+
+function showTab(cat, btn) {
+  document.querySelectorAll('.exp-tab').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.exp-panel').forEach(p => p.classList.remove('active'));
   btn.classList.add('active');
-}
-
-function handleContact(e){e.preventDefault();showToast('✉️ Mensaje enviado. ¡Gracias!');}
-
-// ── TOAST ──
-function showToast(msg){
-  let t=document.getElementById('_toast');
-  if(!t){t=document.createElement('div');t.id='_toast';
-    Object.assign(t.style,{position:'fixed',bottom:'1.8rem',right:'1.8rem',background:'#1a1a1a',color:'#fff',padding:'.7rem 1.2rem',borderRadius:'5px',fontSize:'.84rem',zIndex:'9999',boxShadow:'0 4px 20px rgba(0,0,0,.35)',transition:'opacity .3s',maxWidth:'280px',lineHeight:'1.4'});
-    document.body.appendChild(t);}
-  t.textContent=msg;t.style.opacity='1';
-  clearTimeout(t._t);t._t=setTimeout(()=>t.style.opacity='0',3200);
+  el(`panel-${cat}`).classList.add('active');
 }
 </script>
+
 </body>
 </html>
